@@ -1,0 +1,45 @@
+version: '3.3'
+
+networks:
+  bee_net:
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.10.0.0/16
+
+services:
+  intellij-idea:
+    build: .
+    volumes:
+     - /tmp/.X11-unix:/tmp/.X11-unix
+     - ${PWD}/IdeaConfig/.android:/home/developer/.android
+     - ${PWD}/IdeaConfig/.cache:/home/developer/.cache
+     - ${PWD}/IdeaConfig/.config:/home/developer/.config
+     - ${PWD}/IdeaConfig/.java:/home/developer/.java
+     - ${PWD}/IdeaConfig/.jdks:/home/developer/.jdks
+     - ${PWD}/IdeaConfig/.local:/home/developer/.local
+     - ${PWD}/IdeaConfig/.m2:/home/developer/.m2
+     - ${PWD}/../IdeaProjects:/home/developer/IdeaProjects/
+     - ${PWD}/../../.gitconfig:/home/developer/.gitconfig
+    environment:
+     - DISPLAY=${DISPLAY}
+    links:
+     - db:db
+    ports:
+      - 8080:8080
+    networks:
+     bee_net:
+      ipv4_address: 10.10.0.2
+
+  db:
+    image: postgres
+    restart: always
+    volumes:
+      - ${PWD}/dbdata:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: test123
+    networks:
+     bee_net:
+      ipv4_address: 10.10.0.3
